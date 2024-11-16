@@ -99,4 +99,85 @@ MainTab:AddToggle({
         if state then
             spawn(function()
                 while getgenv().GodMode do
+                    task.wait()local murderer = nil
+                    for _, player in pairs(game.Players:GetPlayers()) do
+                        if player.Character and player.Character:FindFirstChild("Knife") then
+                            murderer = player
+                        end
+                    end
+                    if murderer and murderer.Character and murderer.Character:FindFirstChild("HumanoidRootPart") then
+                        local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - murderer.Character.HumanoidRootPart.Position).Magnitude
+                        if distance < 5 then
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
+
+-- الوظيفة: AimBot للمسدس
+CombatTab:AddToggle({
+    Name = "Gun AimBot",
+    Default = false,
+    Callback = function(state)
+        getgenv().AimBotGun = state
+        if state then
+            local mouse = game.Players.LocalPlayer:GetMouse()
+            spawn(function()
+                while getgenv().AimBotGun do
                     task.wait()
+                    if mouse.Target and mouse.Target.Parent:FindFirstChild("Humanoid") then
+                        mouse.Target.Parent.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                    end
+                end
+            end)
+        end
+    end
+})
+
+-- الوظيفة: AimBot للسيف
+CombatTab:AddToggle({
+    Name = "Knife AimBot",
+    Default = false,
+    Callback = function(state)
+        getgenv().AimBotKnife = state
+        if state then
+            spawn(function()
+                while getgenv().AimBotKnife do
+                    task.wait()
+                    for _, player in pairs(game.Players:GetPlayers()) do
+                        if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") then
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
+
+-- الوظيفة: سرعة وقفز
+MovementTab:AddSlider({
+    Name = "Speed Boost",
+    Min = 16,
+    Max = 100,
+    Default = 16,
+    Callback = function(value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
+    end
+})
+
+MovementTab:AddSlider({
+    Name = "Jump Boost",
+    Min = 50,
+    Max = 200,
+    Default = 50,
+    Callback = function(value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = value
+    end
+})
+
+-- تشغيل OrionLib
+OrionLib:Init()
