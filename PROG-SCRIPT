@@ -1,323 +1,102 @@
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
+-- تحميل مكتبة OrionLib
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
-local window = OrionLib:MakeWindow({
-    Name = "PROG - Ultimate Script",
-    HidePremium = false,
-    SaveConfig = true,
-    ConfigFolder = "PROG_Config",
-    IntroText = "PROG - Blox Fruits"
-})
+-- إنشاء نافذة رئيسية
+local Window = OrionLib:MakeWindow({Name = "MM2 Ultimate Script", HidePremium = false, SaveConfig = true, ConfigFolder = "MM2_Config"})
 
-local autoLevel = false
-local autoCollect = false
-local autoBuyFruits = false
-local autoBossFarm = false
-local serverHop = false
-local autoStatAllocation = false
-local autoChestCollect = false
-local autoRaid = false
-local autoTeamSwitch = false
-local killAura = false
-local espEnabled = false
-local autoFruitSniper = false
-local safeZoneEnabled = false
-local customWaypoint = nil
-local selectedStat = "Melee"
-local selectedTeam = "Pirates"
-local selectedWeapon = nil
-local autoFruitFinder = false
-local autoStoreFruits = false
-local autoDefenseEnabled = false
-local damageCounter = 0
-local targetHelper = false
-local autoHelperBot = false
+-- أقسام السكربت
+local MainTab = Window:MakeTab({Name = "Main Features", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local ESPTab = Window:MakeTab({Name = "ESP", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local CombatTab = Window:MakeTab({Name = "Combat", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local MovementTab = Window:MakeTab({Name = "Movement", Icon = "rbxassetid://4483345998", PremiumOnly = false})
 
-local mainTab = window:MakeTab({
-    Name = "Main",
-    Icon = "rbxassetid://4483362458",
-    PremiumOnly = false
-})
+-- المتغيرات العامة
+getgenv().ESPEnabled = false
+getgenv().CoinESP = false
+getgenv().GodMode = false
+getgenv().AutoCollectGun = false
+getgenv().QuickKill = false
+getgenv().AimBotGun = false
+getgenv().AimBotKnife = false
+getgenv().SpeedBoost = 16
+getgenv().JumpBoost = 50
 
-mainTab:AddToggle({
-    Name = "Auto Level",
+-- الوظيفة: ESP اللاعبين
+ESPTab:AddToggle({
+    Name = "Player ESP",
     Default = false,
-    Callback = function(value)
-        autoLevel = value
-        if autoLevel then
-            AutoLevel()
-        end
-    end
-})
+    Callback = function(state)
+        getgenv().ESPEnabled = state
+        if state then
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+                    local Billboard = Instance.new("BillboardGui", player.Character.Head)
+                    Billboard.Name = "PlayerESP"
+                    Billboard.Size = UDim2.new(0, 200, 0, 50)
+                    Billboard.StudsOffset = Vector3.new(0, 3, 0)
+                    Billboard.AlwaysOnTop = true
 
-mainTab:AddToggle({
-    Name = "Auto Collect Items",
-    Default = false,
-    Callback = function(value)
-        autoCollect = value
-        if autoCollect then
-            AutoCollect()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Auto Buy Fruits",
-    Default = false,
-    Callback = function(value)
-        autoBuyFruits = value
-        if autoBuyFruits then
-            AutoBuyFruits()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Auto Boss Farm",
-    Default = false,
-    Callback = function(value)
-        autoBossFarm = value
-        if autoBossFarm then
-            AutoBossFarm()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Auto Chest Collect",
-    Default = false,
-    Callback = function(value)
-        autoChestCollect = value
-        if autoChestCollect then
-            AutoChestCollect()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Auto Raid",
-    Default = false,
-    Callback = function(value)
-        autoRaid = value
-        if autoRaid then
-            StartAutoRaid()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Auto Team Switch",
-    Default = false,
-    Callback = function(value)
-        autoTeamSwitch = value
-        if autoTeamSwitch then
-            AutoTeamSwitch()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Safe Zone Teleport",
-    Default = false,
-    Callback = function(value)
-        safeZoneEnabled = value
-        if safeZoneEnabled then
-            SafeZoneTeleport()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Auto Fruit Finder",
-    Default = false,
-    Callback = function(value)
-        autoFruitFinder = value
-        if autoFruitFinder then
-            FruitFinder()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Auto Store Fruits",
-    Default = false,
-    Callback = function(value)
-        autoStoreFruits = value
-        if autoStoreFruits then
-            AutoStoreFruits()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Kill Aura",
-    Default = false,
-    Callback = function(value)
-        killAura = value
-        if killAura then
-            StartKillAura()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Enable ESP",
-    Default = false,
-    Callback = function(value)
-        espEnabled = value
-        if espEnabled then
-            EnableESP()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Enable Target Helper",
-    Default = false,
-    Callback = function(value)
-        targetHelper = value
-        if targetHelper then
-            TargetHelper()
-        end
-    end
-})
-
-mainTab:AddToggle({
-    Name = "Enable Auto Helper Bot",
-    Default = false,
-    Callback = function(value)
-        autoHelperBot = value
-        if autoHelperBot then
-            AutoHelperBot()
-        end
-    end
-})
-
-mainTab:AddButton({
-    Name = "Set Custom Waypoint",Callback = function()
-        customWaypoint = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-        OrionLib:MakeNotification({
-            Name = "Waypoint Set",
-            Content = "Your custom waypoint has been saved!",
-            Image = "rbxassetid://4483362458",
-            Time = 5
-        })
-    end
-})
-
-mainTab:AddButton({
-    Name = "Teleport to Waypoint",
-    Callback = function()
-        if customWaypoint then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = customWaypoint
-        else
-            OrionLib:MakeNotification({
-                Name = "No Waypoint Found",
-                Content = "You need to set a waypoint first!",
-                Image = "rbxassetid://4483362458",
-                Time = 5
-            })
-        end
-    end
-})
-
-local damageLabel = mainTab:AddLabel("Damage Counter: 0")
-game:GetService("RunService").RenderStepped:Connect(function()
-    damageLabel:Set("Damage Counter: " .. tostring(damageCounter))
-end)
-
-mainTab:AddDropdown({
-    Name = "Select Stat to Upgrade",
-    Default = "Melee",
-    Options = {"Melee", "Defense", "Sword", "Gun", "Blox Fruit"},
-    Callback = function(option)
-        selectedStat = option
-    end
-})
-
-function AutoLevel()
-    while autoLevel do
-        task.wait(1)
-    end
-end
-
-function AutoCollect()
-    while autoCollect do
-        task.wait(1)
-    end
-end
-
-function AutoBuyFruits()
-    while autoBuyFruits do
-        task.wait(5)
-    end
-end
-
-function AutoBossFarm()
-    while autoBossFarm do
-        task.wait(2)
-    end
-end
-
-function SafeZoneTeleport()
-    while safeZoneEnabled do
-        if game.Players.LocalPlayer.Character.Humanoid.Health < 50 then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 100, 0)
-        end
-        task.wait(2)
-    end
-end
-
-function FruitFinder()
-    while autoFruitFinder do
-        for _, fruit in pairs(game.Workspace:GetChildren()) do
-            if fruit:IsA("Tool") and fruit.Name:find("Fruit") then
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = fruit.Handle.CFrame
-                break
+                    local TextLabel = Instance.new("TextLabel", Billboard)
+                    TextLabel.Size = UDim2.new(1, 0, 1, 0)
+                    TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    TextLabel.BackgroundTransparency = 1
+                    TextLabel.Text = player.Name
+                end
             end
-        end
-        task.wait(10)
-    end
-end
-
-function AutoStoreFruits()
-    while autoStoreFruits do
-        task.wait(5)
-    end
-end
-
-function StartKillAura()
-    while killAura do
-        task.wait(0.5)
-    end
-end
-
-function EnableESP()
-end
-
-function TargetHelper()
-    while targetHelper do
-        local closestTarget = nil
-        local shortestDistance = math.huge
-        for _, enemy in pairs(game.Workspace:GetChildren()) do
-            if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - enemy.HumanoidRootPart.Position).magnitude
-                if distance < shortestDistance then
-                    closestTarget = enemy
-                    shortestDistance = distance
+        else
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player.Character and player.Character:FindFirstChild("Head") then
+                    local Billboard = player.Character.Head:FindFirstChild("PlayerESP")
+                    if Billboard then Billboard:Destroy() end
                 end
             end
         end
-        if closestTarget then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = closestTarget.HumanoidRootPart.CFrame
+    end
+})
+
+-- الوظيفة: ESP العملات
+ESPTab:AddToggle({
+    Name = "Coin ESP",
+    Default = false,
+    Callback = function(state)
+        getgenv().CoinESP = state
+        if state then
+            spawn(function()
+                while getgenv().CoinESP do
+                    task.wait(0.5)
+                    for _, coin in pairs(workspace:GetChildren()) do
+                        if coin.Name == "Coin" and not coin:FindFirstChild("CoinESP") then
+                            local Billboard = Instance.new("BillboardGui", coin)
+                            Billboard.Name = "CoinESP"
+                            Billboard.Size = UDim2.new(0, 50, 0, 50)
+                            Billboard.AlwaysOnTop = true
+
+                            local TextLabel = Instance.new("TextLabel", Billboard)
+                            TextLabel.Size = UDim2.new(1, 0, 1, 0)
+                            TextLabel.Text = "Coin"
+                            TextLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+                            TextLabel.BackgroundTransparency = 1
+                        end
+                    end
+                end
+            end)
+        else
+            for _, coin in pairs(workspace:GetChildren()) do
+                if coin:FindFirstChild("CoinESP") then
+                    coin.CoinESP:Destroy()
+                end
+            end
         end
-        task.wait(1)
     end
-end
+})
 
-function AutoHelperBot()
-    while autoHelperBot do
-        task.wait(2)
-    end
-end
-
-OrionLib:Init()
+-- الوظيفة: God Mode
+MainTab:AddToggle({
+    Name = "God Mode",
+    Default = false,
+    Callback = function(state)
+        getgenv().GodMode = state
+        if state then
+            spawn(function()
+                while getgenv().GodMode do
+                    task.wait()
